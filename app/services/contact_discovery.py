@@ -18,7 +18,11 @@ class ContactDiscoveryService:
         self.max_pages = max_pages  # each page costs 1 credit
 
     async def find_candidates(
-        self, domain: str, title_filter: TitleFilter, limit: int | None = None
+        self,
+        domain: str,
+        title_filter: TitleFilter,
+        limit: int | None = None,
+        organization_id: int | None = None,
     ) -> list[dict]:
         """Current employees at `domain` whose title passes the filter (person-detail shaped)."""
         candidates: list[dict] = []
@@ -39,6 +43,9 @@ class ContactDiscoveryService:
                 org_domain = normalize_domain((result.get("organization") or {}).get("domain"))
                 title = result.get("role_title")
                 if person_id is None or person_id in seen or not result.get("is_current") or org_domain != domain:
+                    continue
+                # Several organizations can share a domain; keep people at the matched one.
+                if organization_id is not None and (result.get("organization") or {}).get("id") != organization_id:
                     continue
                 if not title_filter.matches(title):
                     filtered_titles.append(title or "")
@@ -67,11 +74,16 @@ class ContactDiscoveryService:
         return candidates
 
     async def discover_and_create(
-        self, company_id: str, domain: str, title_filter: TitleFilter, limit: int
+        self,
+        company_id: str,
+        domain: str,
+        title_filter: TitleFilter,
+        limit: int,
+        organization_id: int | None = None,
     ) -> list[EnrichmentResult]:
         """Find, enrich and create up to `limit` new contacts associated with the company."""
         results: list[EnrichmentResult] = []
-        for person in await self.find_candidates(domain, title_filter):
+        for person in await self.find_candidates(domain, title_filter, organization_id=organization_id):
             if len(results) >= limit:
                 break
             if await self._already_in_hubspot(person):

@@ -31,7 +31,8 @@ def parse_location(location: dict | None) -> tuple[str | None, str | None, str |
     city = state = country = None
     for place in location.get("osm_locations") or []:
         place_type = (place.get("place_type") or "").lower()
-        name = place.get("name") or None
+        # OSM names carry the hierarchy ("San Francisco, California, United States").
+        name = (place.get("name") or "").split(",")[0].strip() or None
         if place_type in CITY_PLACE_TYPES:
             city = city or name
         elif place_type in STATE_PLACE_TYPES:

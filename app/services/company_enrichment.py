@@ -85,8 +85,8 @@ class CompanyEnrichmentService:
     async def _find_organization(self, domain: str | None, name: str) -> dict | None:
         if domain:
             results = (await self._forager.search_organizations(domains=[domain])).get("search_results") or []
-            matching = [r for r in results if normalize_domain(r.get("domain")) == domain]
-            return (matching or results or [None])[0]
+            matching = [r for r in results if normalize_domain(r.get("domain")) == domain] or results
+            return _best_match(matching, name) if matching else None
 
         if name:
             suggestions = await self._forager.autocomplete_organizations(name)
@@ -95,3 +95,24 @@ class CompanyEnrichmentService:
                 results = (await self._forager.search_organizations(organization_ids=ids[:1])).get("search_results") or []
                 return results[0] if results else None
         return None
+
+
+def _best_match(organizations: list[dict], hubspot_name: str) -> dict:
+    """Several organizations can share a domain in Forager (observed for openai.com).
+
+    Prefer a name match with the HubSpot record, then the largest headcount,
+    then the best (lowest) domain rank.
+    """
+    wanted = _name_key(hubspot_name)
+
+    def score(org: dict) -> tuple:
+        name = _name_key(org.get("name"))
+        name_match = bool(name and wanted and (wanted == name or wanted.startswith(name)))
+        rank = org.get("domain_rank")
+        return (name_match, org.get("employees_amount") or 0, -rank if isinstance(rank, int) else float("-inf"))
+
+    return max(organizations, key=score)
+
+
+def _name_key(name: str | None) -> str:
+    return "".join(ch for ch in (name or "").lower() if ch.isalnum())

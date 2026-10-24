@@ -53,7 +53,11 @@ class EnrichmentAutomation:
             summary["mode"] = "discovered"
             discovery = ContactDiscoveryService(self._hubspot, self._forager, contacts, clock_ms=self._clock)
             results = await discovery.discover_and_create(
-                company_id, company.domain, self._title_filter, self._max_contacts
+                company_id,
+                company.domain,
+                self._title_filter,
+                self._max_contacts,
+                organization_id=(company.organization or {}).get("id"),
             )
         else:
             results = []
