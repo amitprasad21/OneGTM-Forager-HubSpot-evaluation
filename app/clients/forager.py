@@ -55,6 +55,18 @@ class ForagerClient:
     async def aclose(self) -> None:
         await self._http.aclose()
 
+    async def get_credit_balance(self) -> int | None:
+        """Live credit balance of the configured account (free call)."""
+        response = await self._request("GET", "/api/users/current/")
+        for account in (_json_or_none(response) or {}).get("accounts") or []:
+            if str(account.get("id")) == str(self._account_id):
+                balance = (account.get("subscription") or {}).get("credits_balance")
+                try:
+                    return int(float(balance))
+                except (TypeError, ValueError):
+                    return None
+        return None
+
     # --- organizations --------------------------------------------------------
 
     async def search_organizations(

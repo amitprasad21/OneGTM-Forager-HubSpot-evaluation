@@ -96,6 +96,33 @@ class HubSpotClient:
         results = response.json().get("results") or []
         return results[0] if results else None
 
+    async def search_ids_without_property(
+        self, object_type: str, property_name: str, *, created_after_ms: int
+    ) -> list[str]:
+        """Ids of records created after a time that do not have `property_name` set."""
+        ids: list[str] = []
+        after: str | None = None
+        while True:
+            payload = {
+                "filterGroups": [
+                    {
+                        "filters": [
+                            {"propertyName": property_name, "operator": "NOT_HAS_PROPERTY"},
+                            {"propertyName": "createdate", "operator": "GTE", "value": str(created_after_ms)},
+                        ]
+                    }
+                ],
+                "properties": ["createdate"],
+                "limit": 100,
+                **({"after": after} if after else {}),
+            }
+            response = await self._request("POST", f"/crm/v3/objects/{object_type}/search", json=payload)
+            data = response.json()
+            ids.extend(str(item["id"]) for item in data.get("results", []))
+            after = ((data.get("paging") or {}).get("next") or {}).get("after")
+            if not after:
+                return ids
+
     # --- associations ----------------------------------------------------------
 
     async def list_associated_ids(self, from_type: str, from_id: str, to_type: str) -> list[str]:

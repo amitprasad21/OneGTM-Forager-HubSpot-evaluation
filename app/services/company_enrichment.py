@@ -4,9 +4,12 @@ from app.log import get_logger, log_event
 from app.mapping import map_company, normalize_domain
 from app.services.common import (
     ENRICHED,
+    FAILED,
     MISSING,
     NOT_FOUND,
     PARTIAL,
+    SKIPPED,
+    STATUS_PROPERTY,
     Clock,
     EnrichmentResult,
     now_ms,
@@ -15,7 +18,7 @@ from app.services.common import (
 
 log = get_logger(__name__)
 
-READ_PROPERTIES = ["name", "domain", "website"]
+READ_PROPERTIES = ["name", "domain", "website", STATUS_PROPERTY]
 FILL_ONLY_PROPERTIES = ("name", "domain")  # never overwrite what a user typed
 KEY_FIELDS = {
     "description": "description",
@@ -32,7 +35,7 @@ class CompanyEnrichmentService:
         self._forager = forager
         self._clock = clock_ms
 
-    async def enrich(self, company_id: str) -> EnrichmentResult:
+    async def enrich(self, company_id: str, *, force: bool = False) -> EnrichmentResult:
         company = await self._hubspot.get_object("companies", company_id, READ_PROPERTIES)
         if company is None:
             log_event(log, "company.missing", company_id=company_id)
@@ -41,6 +44,12 @@ class CompanyEnrichmentService:
         current = company.get("properties") or {}
         domain = normalize_domain(current.get("domain")) or normalize_domain(current.get("website"))
         name = (current.get("name") or "").strip()
+
+        # Durable idempotency guard: replays and re-queued jobs spend no credits.
+        existing_status = current.get(STATUS_PROPERTY)
+        if existing_status and existing_status != FAILED and not force:
+            log_event(log, "company.skipped", company_id=company_id, status=existing_status)
+            return EnrichmentResult(company_id, SKIPPED, domain=domain)
 
         organization = await self._find_organization(domain, name)
         if organization is None:
