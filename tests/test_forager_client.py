@@ -316,3 +316,24 @@ async def test_budget_guard_blocks_call_before_spending():
 
     assert route.call_count == 0
     await client.aclose()
+
+
+@respx.mock
+async def test_get_credit_balance_for_configured_account(forager, ledger):
+    respx.get(f"{BASE}/api/users/current/").mock(
+        return_value=httpx.Response(
+            200,
+            json={"accounts": [{"id": 1, "subscription": {"credits_balance": "9.00"}},
+                               {"id": 1234, "subscription": {"credits_balance": "50.00"}}]},
+        )
+    )
+
+    assert await forager.get_credit_balance() == 50
+    assert ledger.spent == 0
+
+
+@respx.mock
+async def test_get_credit_balance_unknown_account_returns_none(forager):
+    respx.get(f"{BASE}/api/users/current/").mock(return_value=httpx.Response(200, json={"accounts": []}))
+
+    assert await forager.get_credit_balance() is None

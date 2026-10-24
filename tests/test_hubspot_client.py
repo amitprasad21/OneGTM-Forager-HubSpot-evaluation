@@ -176,3 +176,27 @@ async def test_create_property_group_and_property_are_idempotent_on_conflict(hub
     assert created_group is False
     assert created is False
     assert body(route) == {"name": "forager_person_id"}
+
+
+@respx.mock
+async def test_search_ids_without_status_since(hubspot):
+    route = respx.post(f"{BASE}/crm/v3/objects/contacts/search").mock(
+        side_effect=[
+            httpx.Response(200, json={"results": [{"id": "1"}, {"id": "2"}], "paging": {"next": {"after": "2"}}}),
+            httpx.Response(200, json={"results": [{"id": "3"}]}),
+        ]
+    )
+
+    ids = await hubspot.search_ids_without_property("contacts", "forager_enrichment_status", created_after_ms=1000)
+
+    assert ids == ["1", "2", "3"]
+    first = json.loads(route.calls[0].request.content)
+    assert first["filterGroups"] == [
+        {
+            "filters": [
+                {"propertyName": "forager_enrichment_status", "operator": "NOT_HAS_PROPERTY"},
+                {"propertyName": "createdate", "operator": "GTE", "value": "1000"},
+            ]
+        }
+    ]
+    assert json.loads(route.calls[1].request.content)["after"] == "2"

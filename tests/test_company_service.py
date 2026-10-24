@@ -141,3 +141,26 @@ async def test_forager_errors_propagate_for_job_retry(service, hubspot, forager)
 
     with pytest.raises(ForagerError):
         await service.enrich("101")
+
+
+async def test_already_processed_company_is_skipped_without_credit_spend(service, hubspot, forager):
+    hubspot.add("companies", "101", domain="acme.ai", forager_enrichment_status="enriched")
+
+    result = await service.enrich("101")
+
+    assert result.status == "skipped"
+    assert result.domain == "acme.ai"
+    assert forager.calls == []
+    assert hubspot.updates == []
+
+
+async def test_force_re_enriches_processed_company(service, hubspot):
+    hubspot.add("companies", "101", domain="acme.ai", forager_enrichment_status="partial")
+
+    assert (await service.enrich("101", force=True)).status == "enriched"
+
+
+async def test_failed_company_is_retried(service, hubspot):
+    hubspot.add("companies", "101", domain="acme.ai", forager_enrichment_status="failed")
+
+    assert (await service.enrich("101")).status == "enriched"
