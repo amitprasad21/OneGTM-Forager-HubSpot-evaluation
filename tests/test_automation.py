@@ -125,3 +125,14 @@ async def test_mark_failed_writes_failed_status(hubspot, forager):
     props = hubspot.props("contacts", "5")
     assert props["forager_enrichment_status"] == "failed"
     assert props["forager_enrichment_notes"] == "Enrichment failed: Forager POST failed with HTTP 500"
+
+
+async def test_discovery_is_restricted_to_the_matched_organization(hubspot, forager):
+    stranger = role(4, "VP Somewhere Else")
+    stranger["organization"]["id"] = 999
+    forager.role_results.append(stranger)
+    hubspot.add("companies", "101", domain="acme.ai")
+
+    await make_automation(hubspot, forager).company_created("101")
+
+    assert "VP Somewhere Else" not in [props["jobtitle"] for _, props, _ in hubspot.created]

@@ -186,3 +186,14 @@ async def test_discovery_logs_kept_and_filtered_titles_without_names(hubspot, fo
     assert record.fields["kept_titles"] == ["VP Engineering", "Head of Sales"]
     assert record.fields["filtered_titles"] == ["Software Engineer", "Executive Assistant to the VP", "Director of Product"]
     assert "P 1" not in str(record.fields)
+
+
+async def test_organization_id_restricts_candidates_to_the_matched_organization(hubspot, forager):
+    other_org = role(10, "VP Elsewhere")
+    other_org["organization"]["id"] = 999  # same domain, different organization
+    forager.role_results = [role(1, "VP Engineering"), other_org]
+    service = make_service(hubspot, forager)
+
+    candidates = await service.find_candidates("acme.ai", VP_HEAD, limit=10, organization_id=501)
+
+    assert [c["id"] for c in candidates] == [1]

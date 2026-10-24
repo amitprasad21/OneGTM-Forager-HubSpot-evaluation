@@ -164,3 +164,33 @@ async def test_failed_company_is_retried(service, hubspot):
     hubspot.add("companies", "101", domain="acme.ai", forager_enrichment_status="failed")
 
     assert (await service.enrich("101")).status == "enriched"
+
+
+async def test_picks_best_match_when_several_organizations_share_the_domain(service, hubspot, forager):
+    # Observed live: Forager lists a 1-person company under openai.com before the real one.
+    tiny = copy.deepcopy(ORG) | {"id": 7, "name": "Jeremy Space AI", "employees_amount": 1}
+    real = copy.deepcopy(ORG) | {"id": 501, "name": "Acme AI", "employees_amount": 3500}
+    forager.organizations = [tiny, real]
+    hubspot.add("companies", "101", name="Acme AI", domain="acme.ai")
+
+    result = await service.enrich("101")
+
+    assert result.organization["id"] == 501
+
+
+async def test_name_match_beats_size(service, hubspot, forager):
+    big_other = copy.deepcopy(ORG) | {"id": 8, "name": "Other Holdings", "employees_amount": 90000}
+    named = copy.deepcopy(ORG) | {"id": 501, "name": "Acme AI", "employees_amount": 50}
+    forager.organizations = [big_other, named]
+    hubspot.add("companies", "101", name="Acme AI (Evaluation Demo)", domain="acme.ai")
+
+    assert (await service.enrich("101")).organization["id"] == 501
+
+
+async def test_without_name_match_largest_organization_wins(service, hubspot, forager):
+    small = copy.deepcopy(ORG) | {"id": 7, "name": "Small", "employees_amount": 3}
+    large = copy.deepcopy(ORG) | {"id": 9, "name": "Large", "employees_amount": 4000}
+    forager.organizations = [small, large]
+    hubspot.add("companies", "101", domain="acme.ai")
+
+    assert (await service.enrich("101")).organization["id"] == 9

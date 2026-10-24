@@ -108,3 +108,17 @@ def test_parse_location(location, expected):
 )
 def test_normalize_domain(raw, expected):
     assert normalize_domain(raw) == expected
+
+
+def test_parse_location_uses_first_segment_of_hierarchical_osm_names():
+    # Observed live: Forager OSM names carry the full hierarchy.
+    location = {
+        "name": "San Francisco, California, United States",
+        "osm_locations": [
+            {"id": 1, "name": "San Francisco, California, United States", "place_type": "city"},
+            {"id": 2, "name": "California, United States", "place_type": "state"},
+            {"id": 3, "name": "United States", "place_type": "country"},
+        ],
+    }
+
+    assert parse_location(location) == ("San Francisco", "California", "United States")
