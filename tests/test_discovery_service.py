@@ -174,3 +174,15 @@ async def test_partial_contacts_are_created_with_honest_status(hubspot, forager)
     assert props["forager_enrichment_status"] == "partial"
     assert props["forager_enrichment_notes"].startswith("Missing from Forager: phone")
     assert "phone" not in props
+
+
+async def test_discovery_logs_kept_and_filtered_titles_without_names(hubspot, forager, caplog):
+    caplog.set_level("INFO", logger="app.services.contact_discovery")
+    service = make_service(hubspot, forager)
+
+    await service.find_candidates("acme.ai", VP_HEAD, limit=10)
+
+    record = next(r for r in caplog.records if r.getMessage() == "discovery.candidates")
+    assert record.fields["kept_titles"] == ["VP Engineering", "Head of Sales"]
+    assert record.fields["filtered_titles"] == ["Software Engineer", "Executive Assistant to the VP", "Director of Product"]
+    assert "P 1" not in str(record.fields)
