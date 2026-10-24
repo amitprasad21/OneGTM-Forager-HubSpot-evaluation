@@ -1,0 +1,50 @@
+{
+  "search_results": [
+    {
+      "id": 501,
+      "name": "Acme AI",
+      "legal_name": "Acme AI, Inc.",
+      "website": "https://www.acme.ai/",
+      "domain": "acme.ai",
+      "domain_rank": 1200,
+      "logo": "https://cdn.example.test/acme.png",
+      "description": "Acme AI builds test fixtures.",
+      "founded_date": "2015-12-11",
+      "operating_status": "active",
+      "employees_range": "1001-5000",
+      "employees_amount": 3500,
+      "keywords": [{"id": 1, "name": "artificial intelligence"}, {"id": 2, "name": "research"}],
+      "location": {
+        "id": 10,
+        "name": "San Francisco, California, United States",
+        "osm_locations": [
+          {"id": 1, "name": "San Francisco", "place_type": "city"},
+          {"id": 2, "name": "California", "place_type": "state"},
+          {"id": 3, "name": "United States", "place_type": "country"}
+        ]
+      },
+      "finance_info": {"revenue": 1000000000},
+      "linkedin_info": {
+        "public_identifier": "acme-ai",
+        "industry": {"id": 4, "name": "Research Services"},
+        "public_profile_url": "https://www.linkedin.com/company/acme-ai/"
+      },
+      "addresses": [
+        {
+          "street_number": "1",
+          "street_name": "Test Street",
+          "city": "San Francisco",
+          "state": "CA",
+          "postcode": "94110",
+          "country": "United States",
+          "summary": "1 Test Street, San Francisco, CA 94110, United States"
+        }
+      ],
+      "date_updated": "2026-10-01T00:00:00Z",
+      "found_simple_events": [],
+      "found_funding_events": [],
+      "found_job_post_events": []
+    }
+  ],
+  "total_search_results": 1
+}
