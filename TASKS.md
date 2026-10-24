@@ -21,15 +21,17 @@ Depends on: Phase 1
 - ✅ `HUBSPOT_CLIENT_SECRET` set; `scripts/check_config.py` passes (Forager 200, HubSpot 200, all mapped default properties exist incl. `hs_linkedin_url`)
 - ⛔ User: confirm `HUBSPOT_ACCESS_TOKEN` is now the app's static token (not the service key)
 - ⛔ **Forager balance is 50 credits (initial demo credits), not 150** — decide how to cover the 5-person deliverable
-- ⏳ Update api-contracts/setup/deployment docs for the project-based app
-- ⏳ Download Forager OpenAPI bundle; confirm reverse-email request field
+- ✅ Docs updated for the project-based app and the 50-credit balance
+- ✅ Forager OpenAPI bundle checked: reverse-email body `{email}`, phone/personal-email are arrays, work-email `emails[]` shape ambiguous (handled)
 - ⏳ One live org search for `openai.com` (1 credit) + one role search (1 credit) → redacted fixtures
 
-## Phase 3 — API clients (TDD) ⏳
-- ⏳ dev deps: pytest, pytest-asyncio, respx; `requirements-dev.txt`
-- ⏳ config validation + log redaction
-- ⏳ http retry/backoff
-- ⏳ ForagerClient (+ credit ledger) · HubSpotClient
+## Phase 3 — API clients (TDD) ✅
+- ✅ dev deps (pytest, pytest-asyncio, respx), `requirements-dev.txt`, offline network guard
+- ✅ config validation (SecretStr) + JSON log redaction
+- ✅ HTTP retry/backoff (429/5xx/timeouts, Retry-After, capped)
+- ✅ ForagerClient + in-memory credit ledger with budget guard (charges recorded only when Forager charges)
+- ✅ HubSpotClient (objects, search, v4 associations, properties; 409-idempotent property creation)
+- ✅ 60 offline tests passing
 
 ## Phase 4 — Company enrichment ⏳
 - ⏳ company mapping · CompanyEnrichmentService · property setup script
@@ -47,4 +49,5 @@ Depends on: Phase 1
 - ⏳ Railway deploy, webhooks subscribed, acceptance A1–A7, video, submission notes
 
 ## Next action
-User: confirm the HubSpot private app is standalone and add `HUBSPOT_CLIENT_SECRET` to `.env` (Phase 2).
+Phase 4: company mapping + CompanyEnrichmentService + `scripts/setup_hubspot_properties.py` (TDD, offline).
+Open user decisions: Forager credit gap; confirm HubSpot token is the app token.

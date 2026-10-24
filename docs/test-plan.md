@@ -66,4 +66,4 @@ one redacted real response per endpoint.
 | A6 | Re-send same webhook (HubSpot "test" / replay) | no duplicate contacts, no extra credits |
 | A7 | Railway logs | no tokens, emails or phone numbers visible |
 
-Credit budget for live acceptance: ≈ 115 of 150 credits (see requirements §7).
+Credit budget for live acceptance: ≈ 102 credits for the full 5-person target; the account has 50 (see requirements §7).

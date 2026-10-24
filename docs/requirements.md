@@ -60,7 +60,7 @@ shortfall honestly and pick the most complete candidates; we never fabricate.
 
 | Constraint | Impact |
 |-----------|--------|
-| Forager free tier = **150 credits** | Full enrichment of one person ≈ 1 (detail) + 5 (work email) + 15 (phone) = **21 credits**. 5 people ≈ 105 credits + searches. Little room for re-runs → unit tests never hit live APIs; live runs are gated and logged; a credit-budget guard caps spend. |
+| Forager free tier: PDF says 150 credits, **account actually received 50** (balance log: "Initial demo credits 50.00", 2026-10-24) | Cheapest full enrichment: 1 org search + 1 role search (returns name, LinkedIn, title, employer, location for many people) + per person 5 (work email) + 15 (phone), charged only when found → 5 people ≈ **102 credits**. 50 credits cover company + 5 emails + ~1 phone. Little room for re-runs → unit tests never hit live APIs; live runs are gated and logged; a credit-budget guard caps spend. |
 | HubSpot retries webhooks that take > 5 s | Webhook must ack fast; enrichment runs in the background. |
 | HubSpot retries up to 10× over 24 h | Processing must be idempotent per event and per object. |
 | Service-created contacts emit `contact.creation` | Loop/double-spend prevention required (R5). |
@@ -68,4 +68,5 @@ shortfall honestly and pick the most complete candidates; we never fabricate.
 ## 8. Open questions
 
 - **[Open]** Should the nice-to-have fields (headline, About, skills) be written to HubSpot? Default: off, documented in data-mapping §4.
+- **[Open]** How to cover the credit gap (OneGTM top-up / buy credits / accept partial phones).
 - **[Open]** Default title filter for discovery. Proposed: leadership & GTM roles (`CEO, CTO, COO, VP, Head, Director, Chief`), max 5 contacts.

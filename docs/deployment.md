@@ -21,13 +21,12 @@ Set every variable from [setup.md §3](setup.md) in Railway → service →
 (Settings → Networking → Generate Domain), with no trailing slash.
 
 ## 4. HubSpot webhook subscriptions
-1. HubSpot → Development → Legacy apps → your private app → **Webhooks** → **Edit webhooks**.
-2. Target URL: `https://<railway-domain>/webhooks/hubspot`
-3. **Create subscription**:
-   - Object: Companies → event **Created**
-   - Object: Contacts → event **Created**
-4. **Subscribe** → **Commit changes**.
-5. Use **View details → Test** to send a sample event; Railway logs should show `webhook.accepted`.
+1. Edit `hubspot-project/src/app/webhooks/webhooks-hsmeta.json`:
+   - `settings.targetUrl` → `https://<railway-domain>/webhooks/hubspot`
+   - set both `object.creation` subscriptions (company, contact) to `"active": true`
+2. `cd hubspot-project && hs project upload`, then commit the change.
+3. Create a test record in HubSpot; Railway logs should show `webhook.accepted`.
+   Delivery history: Development → Projects → forager-enrichment → app → Monitoring.
 
 ## 5. Verification checklist
 
