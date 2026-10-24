@@ -19,8 +19,6 @@ def root():
 def health():
     return {
     "status": "ok",
-    "forager_configured": bool(
-    settings.forager_api_key and settings.forager_account_id
-    ),
-    "hubspot_configured": bool(settings.hubspot_access_token),
+    "forager_configured": settings.forager_configured,
+    "hubspot_configured": settings.hubspot_configured,
     }

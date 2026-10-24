@@ -32,10 +32,10 @@ EXPECTED_PROPERTIES = {
 
 def report_settings() -> bool:
     fields = {
-        "FORAGER_API_KEY": settings.forager_api_key,
+        "FORAGER_API_KEY": settings.forager_api_key.get_secret_value(),
         "FORAGER_ACCOUNT_ID": settings.forager_account_id,
-        "HUBSPOT_ACCESS_TOKEN": settings.hubspot_access_token,
-        "HUBSPOT_CLIENT_SECRET": settings.hubspot_client_secret,
+        "HUBSPOT_ACCESS_TOKEN": settings.hubspot_access_token.get_secret_value(),
+        "HUBSPOT_CLIENT_SECRET": settings.hubspot_client_secret.get_secret_value(),
     }
     ok = True
     for name, value in fields.items():
@@ -47,7 +47,7 @@ def report_settings() -> bool:
 def check_forager(client: httpx.Client) -> bool:
     response = client.get(
         f"{FORAGER_BASE_URL}/api/users/current/",
-        headers={"X-API-KEY": settings.forager_api_key},
+        headers={"X-API-KEY": settings.forager_api_key.get_secret_value()},
     )
     print(f"Forager /api/users/current/: HTTP {response.status_code}")
     if response.status_code != 200:
@@ -65,7 +65,7 @@ def check_forager(client: httpx.Client) -> bool:
 
 
 def check_hubspot(client: httpx.Client) -> bool:
-    headers = {"Authorization": f"Bearer {settings.hubspot_access_token}"}
+    headers = {"Authorization": f"Bearer {settings.hubspot_access_token.get_secret_value()}"}
     response = client.get(
         f"{HUBSPOT_BASE_URL}/crm/v3/objects/companies",
         params={"limit": 1},
