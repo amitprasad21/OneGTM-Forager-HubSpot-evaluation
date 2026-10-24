@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     forager_api_key: str = ""
     forager_account_id: str = ""
     hubspot_access_token: str = ""
+    hubspot_client_secret: str = ""
 
     model_config = SettingsConfigDict(
     env_file=".env",

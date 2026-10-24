@@ -16,11 +16,12 @@ Legend: ✅ done · 🔄 in progress · ⏳ todo · ⛔ blocked (needs user acti
 Depends on: Phase 1
 - ✅ Finding: portal has **no legacy apps**; existing token is a service key (REST only; service keys cannot receive webhooks)
 - ✅ HubSpot CLI 8.17.0 installed (Node 24)
-- ⛔ User: `hs account auth` (personal access key) so the CLI can upload a project
-- ⏳ Add `hubspot-project/` (static-auth, private app + webhook subscriptions for company/contact `object.creation`), upload, install
-- ⏳ User: copy app static token + client secret into `.env`; update api-contracts/setup/deployment docs for the project-based app
-- ⏳ `scripts/check_config.py`: Forager `/api/users/current/` (free) → account id + credit balance; HubSpot token check (read-only)
-- ⏳ Confirm HubSpot default properties exist (`hs_linkedin_url`, `linkedin_company_page`, `founded_year`, …)
+- ✅ CLI authenticated (account `open-ai`, portal 247782088)
+- ✅ `hubspot-project/` uploaded (build #1, app id 58454528) and installed; 9 scopes granted
+- ✅ `HUBSPOT_CLIENT_SECRET` set; `scripts/check_config.py` passes (Forager 200, HubSpot 200, all mapped default properties exist incl. `hs_linkedin_url`)
+- ⛔ User: confirm `HUBSPOT_ACCESS_TOKEN` is now the app's static token (not the service key)
+- ⛔ **Forager balance is 50 credits (initial demo credits), not 150** — decide how to cover the 5-person deliverable
+- ⏳ Update api-contracts/setup/deployment docs for the project-based app
 - ⏳ Download Forager OpenAPI bundle; confirm reverse-email request field
 - ⏳ One live org search for `openai.com` (1 credit) + one role search (1 credit) → redacted fixtures
 
