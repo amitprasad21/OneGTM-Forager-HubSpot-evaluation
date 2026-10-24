@@ -1,0 +1,69 @@
+{
+  "id": 9001,
+  "full_name": "Jane Doe",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "photo": null,
+  "gender": null,
+  "headline": "VP Engineering at Acme AI",
+  "description": "Builds reliable systems. (synthetic test profile)",
+  "skills": [{"name": "Python"}, {"name": "Distributed Systems"}],
+  "location": {
+    "id": 10,
+    "name": "San Francisco, California, United States",
+    "osm_locations": [
+      {"id": 1, "name": "San Francisco", "place_type": "city"},
+      {"id": 2, "name": "California", "place_type": "state"},
+      {"id": 3, "name": "United States", "place_type": "country"}
+    ]
+  },
+  "linkedin_info": {
+    "public_identifier": "jane-doe-test",
+    "industry": {"id": 4, "name": "Research Services"},
+    "public_profile_url": "https://www.linkedin.com/in/jane-doe-test/"
+  },
+  "roles": [
+    {
+      "id": 1,
+      "role_title": "Senior Engineer",
+      "start_date": "2016-01-01",
+      "end_date": "2019-12-31",
+      "is_current": false,
+      "organization": {
+        "id": 77,
+        "name": "Old Corp",
+        "domain": "oldcorp.example",
+        "linkedin_info": {"public_identifier": "old-corp", "industry": {"id": 1, "name": "x"}, "public_profile_url": "https://www.linkedin.com/company/old-corp/"}
+      }
+    },
+    {
+      "id": 2,
+      "role_title": "Advisor",
+      "start_date": "2018-05-01",
+      "end_date": null,
+      "is_current": true,
+      "organization": {
+        "id": 78,
+        "name": "Side Project",
+        "domain": "side.example",
+        "linkedin_info": {"public_identifier": "side", "industry": {"id": 1, "name": "x"}, "public_profile_url": "https://www.linkedin.com/company/side/"}
+      }
+    },
+    {
+      "id": 3,
+      "role_title": "VP Engineering",
+      "start_date": "2020-01-01",
+      "end_date": null,
+      "is_current": true,
+      "organization": {
+        "id": 501,
+        "name": "Acme AI",
+        "domain": "acme.ai",
+        "linkedin_info": {"public_identifier": "acme-ai", "industry": {"id": 4, "name": "Research Services"}, "public_profile_url": "https://www.linkedin.com/company/acme-ai/"}
+      }
+    }
+  ],
+  "educations": [],
+  "certifications": [],
+  "languages": []
+}
