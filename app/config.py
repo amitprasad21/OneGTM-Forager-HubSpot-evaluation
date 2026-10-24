@@ -21,11 +21,12 @@ class Settings(BaseSettings):
     database_path: str = "data/app.db"
     log_level: str = "INFO"
 
-    forager_credit_budget: int = 45
+    # Safety cap per deployment; at startup it is lowered to the live Forager balance.
+    forager_credit_budget: int = 500
     enable_phone_lookup: bool = True
     enable_personal_email_lookup: bool = True
     enrich_extra_fields: bool = False
-    max_phone_lookups_per_job: int = 2
+    max_phone_lookups_per_job: int | None = None  # None: only the credit budget limits phones
     worker_enabled: bool = True
 
     discovery_titles: Annotated[list[str], NoDecode] = [

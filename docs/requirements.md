@@ -68,5 +68,5 @@ shortfall honestly and pick the most complete candidates; we never fabricate.
 ## 8. Open questions
 
 - **[Open]** Should the nice-to-have fields (headline, About, skills) be written to HubSpot? Default: off, documented in data-mapping §4.
-- **[Decided 2026-10-24]** Credit gap: stay within the 50 credits. Phone lookups for **2** of the 5 OpenAI contacts; work emails for as many as the remaining budget allows (≈ 3, more if some lookups return nothing and are not charged). The shortfall is reported in the submission notes.
+- **[Decided 2026-10-24, revised]** Credit gap: the user is switching to a **paid Forager key**, so the full target applies: email and phone looked up for all 5 OpenAI contacts. Fields Forager cannot supply are still reported honestly.
 - **[Open]** Default title filter for discovery. Proposed: leadership & GTM roles (`CEO, CTO, COO, VP, Head, Director, Chief`), max 5 contacts.

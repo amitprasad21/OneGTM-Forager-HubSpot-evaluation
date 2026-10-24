@@ -20,7 +20,7 @@ Depends on: Phase 1
 - ✅ `hubspot-project/` uploaded (build #1, app id 58454528) and installed; 9 scopes granted
 - ✅ `HUBSPOT_CLIENT_SECRET` set; `scripts/check_config.py` passes (Forager 200, HubSpot 200, all mapped default properties exist incl. `hs_linkedin_url`)
 - ✅ User confirmed `HUBSPOT_ACCESS_TOKEN` is the app's static token
-- ✅ Forager balance is 50 credits (not 150). Decision: phones for 2 contacts, emails within remaining budget
+- ✅ Forager free balance was 50 credits (not 150); user is switching to a paid key, so all 5 contacts get email + phone lookups
 - ✅ Docs updated for the project-based app and the 50-credit balance
 - ✅ Forager OpenAPI bundle checked: reverse-email body `{email}`, phone/personal-email are arrays, work-email `emails[]` shape ambiguous (handled)
 - ⏳ One live org search for `openai.com` (1 credit) + one role search (1 credit) → redacted fixtures
@@ -61,4 +61,4 @@ Depends on: Phase 1
 - ⏳ Render deploy (Free + keep-alive, `render.yaml`), webhooks subscribed, acceptance A1–A7, video, submission notes
 
 ## Next action
-User: add `ADMIN_API_KEY` to `.env` → local smoke test (free calls only) → Phase 7 live OpenAI run (spends credits, needs approval).
+User: put the paid Forager key in `.env` and Render, create the Render service (Blueprint), send the URL. Then: activate webhooks, keep-alive, live OpenAI run while recording.

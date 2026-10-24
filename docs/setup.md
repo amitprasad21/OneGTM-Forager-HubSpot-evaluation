@@ -30,12 +30,12 @@ copy .env.example .env   # then fill in values
 | `PUBLIC_BASE_URL` | local/custom domain only | Public https base URL, e.g. `https://<service>.onrender.com` (falls back to Render's `RENDER_EXTERNAL_URL`). Needed to rebuild the signed URI |
 | `ADMIN_API_KEY` | yes | Random string protecting `/admin/*` (sent as `X-Admin-Key`). Generate: `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
 | `DATABASE_PATH` | no | SQLite file (default `data/app.db`; `/tmp/app.db` on Render Free) |
-| `FORAGER_CREDIT_BUDGET` | no | Hard cap on credits this deployment may spend (default 45 — the account has 50) |
+| `FORAGER_CREDIT_BUDGET` | no | Hard cap on credits this deployment may spend (default 500; lowered to the live Forager balance at startup) |
 | `DISCOVERY_TITLES` | no | Default include titles, comma-separated |
 | `DISCOVERY_EXCLUDE_TITLES` | no | Default exclude titles |
 | `DISCOVERY_MAX_CONTACTS` | no | Default 5 |
 | `ENABLE_PHONE_LOOKUP` / `ENABLE_PERSONAL_EMAIL_LOOKUP` | no | Toggle expensive lookups (default true / true) |
-| `MAX_PHONE_LOOKUPS_PER_JOB` | no | Phone lookups (15 credits each) allowed per webhook job (default 2) |
+| `MAX_PHONE_LOOKUPS_PER_JOB` | no | Phone lookups (15 credits each) allowed per webhook job (default: no limit) |
 | `WORKER_ENABLED` | no | Run the background worker in this process (default true) |
 | `ENRICH_EXTRA_FIELDS` | no | Write nice-to-have fields (default false) |
 | `LOG_LEVEL` | no | default `INFO` |

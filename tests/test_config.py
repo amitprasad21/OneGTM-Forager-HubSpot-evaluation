@@ -47,7 +47,9 @@ def test_repr_and_dump_do_not_leak_secrets():
 def test_defaults_for_optional_settings():
     settings = make_settings()
 
-    assert settings.forager_credit_budget == 45
+    assert settings.forager_credit_budget == 500  # safety cap; live balance caps it further at startup
+    assert settings.max_phone_lookups_per_job is None  # no per-job limit unless configured
+    assert settings.enable_personal_email_lookup is True
     assert settings.discovery_max_contacts == 5
     assert settings.enrich_extra_fields is False
     assert settings.enable_phone_lookup is True
@@ -67,3 +69,9 @@ def test_title_lists_are_parsed_from_comma_separated_env(monkeypatch):
 def test_webhook_base_url_prefers_public_base_url_then_render():
     assert make_settings(public_base_url="https://a.example/").webhook_base_url == "https://a.example"
     assert make_settings(render_external_url="https://svc.onrender.com").webhook_base_url == "https://svc.onrender.com"
+
+
+def test_phone_limit_can_be_configured_from_env(monkeypatch):
+    monkeypatch.setenv("MAX_PHONE_LOOKUPS_PER_JOB", "2")
+
+    assert Settings(_env_file=None, **REQUIRED).max_phone_lookups_per_job == 2

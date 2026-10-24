@@ -28,7 +28,7 @@ Upgrade path: Starter plan + persistent disk mounted at `/var/data`
 | Health check path | `/health` |
 | Instances | **1** (SQLite queue assumes a single instance) |
 | `DATABASE_PATH` | `/tmp/app.db` (ephemeral on Free) |
-| Live-run credit settings | `FORAGER_CREDIT_BUDGET=50`, `ENABLE_PERSONAL_EMAIL_LOOKUP=false`, `MAX_PHONE_LOOKUPS_PER_JOB=2` (Phase 7 plan) |
+| Credit settings | Defaults (budget cap 500, lowered to the live Forager balance at startup; no per-job phone limit). Override via env only if needed. |
 
 Create it with Render Dashboard → **New → Blueprint** → select the repo
 (reads `render.yaml`), or **New → Web Service** with the values above.
