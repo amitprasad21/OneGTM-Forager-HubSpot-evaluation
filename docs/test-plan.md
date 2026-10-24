@@ -58,12 +58,12 @@ one redacted real response per endpoint.
 
 | ID | Steps | Pass criteria |
 |----|-------|---------------|
-| A1 | `GET https://<railway-url>/health` | 200, all `*_configured: true` |
+| A1 | `GET https://<service>.onrender.com/health` | 200, all `*_configured: true` |
 | A2 | Create company "OpenAI" (`openai.com`) in HubSpot UI | within ~1 min: description, revenue, headcount, LinkedIn, HQ location populated; status `enriched` |
 | A3 | (A2 continued, no contacts existed) | ≤ 5 title-matching contacts created + associated, each with name, LinkedIn, title, employer fields, city/state/country, and email/phone where Forager has them |
 | A4 | Create a contact manually with a LinkedIn URL | enriched within ~1 min |
 | A5 | `POST /admin/discover` with `titles=["Engineer"]` vs `["VP","Head"]` | result sets differ and respect filters |
 | A6 | Re-send same webhook (HubSpot "test" / replay) | no duplicate contacts, no extra credits |
-| A7 | Railway logs | no tokens, emails or phone numbers visible |
+| A7 | Render logs | no tokens, emails or phone numbers visible |
 
 Credit budget for live acceptance: ≈ 102 credits for the full 5-person target; the account has 50 (see requirements §7).

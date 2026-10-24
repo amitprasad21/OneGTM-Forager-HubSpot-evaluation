@@ -35,7 +35,7 @@ our interpretation where the PDF is silent; items marked **[Open]** need input.
 ## 4. Engineering requirements
 
 - Python, custom code; no n8n / no-code tools.
-- Deployed live (Railway default) so webhooks run.
+- Deployed live so webhooks run. PDF suggests Railway as a default; **Render (Free + keep-alive)** was chosen — see [deployment.md](deployment.md).
 - Secrets only in environment variables; never hard-coded or logged.
 - Clean, production-quality code.
 - Title-based filtering demonstrably works.

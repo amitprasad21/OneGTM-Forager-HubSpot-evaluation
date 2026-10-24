@@ -1,44 +1,70 @@
-# Deployment (Railway)
+# Deployment (Render)
 
-## 1. Prerequisites
+Target: **Render Free web service + external keep-alive** (decided 2026-10-24).
+Source: https://render.com/docs/free, https://render.com/docs/python-version
+
+## 1. Free-plan constraints and how the design handles them
+
+| Render Free behaviour (from Render docs) | Impact | Mitigation |
+|------------------------------------------|--------|------------|
+| Spins down after **15 min** without inbound traffic; spin-up takes **about one minute** | HubSpot times out after 5 s and retries later, so demos would be slow | External pinger calls `GET /health` every 10 min (§5) |
+| **Ephemeral filesystem**, no persistent disk on Free | SQLite (job queue, event dedupe, credit ledger) is lost on redeploy/restart | HubSpot `forager_enrichment_status` is the durable idempotency guard; credit budget is capped by Forager's live balance at startup; `POST /admin/reconcile` re-queues records left without a status |
+| 750 free instance hours per workspace per month | One always-on service ≈ 744 h | Keep only this service on Free in the workspace |
+
+Upgrade path: Starter plan + persistent disk mounted at `/var/data`
+(`DATABASE_PATH=/var/data/app.db`) makes the SQLite queue durable without code changes.
+
+## 2. Prerequisites
 - Local test suite green (`pytest`).
-- Repository pushed to GitHub (Railway deploys from a repo or via `railway up`).
+- Repository pushed to GitHub (Render deploys from a connected repo).
 
-## 2. Service configuration
+## 3. Service configuration ([render.yaml](../render.yaml) blueprint)
 
 | Item | Value |
 |------|-------|
-| Builder | Railpack/Nixpacks auto-detects Python from `requirements.txt` |
-| Python version | pinned via `.python-version` (`3.13`) |
-| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"` (also in `railway.json`) |
+| Runtime | Python, version from `.python-version` (`3.14`, matching local development) |
+| Build command | `pip install -r requirements.txt` |
+| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"` |
 | Health check path | `/health` |
-| Replicas | **1**. The SQLite queue and idempotency store assume a single instance. |
-| Volume | mount at `/data`; set `DATABASE_PATH=/data/app.db`. Without a volume, jobs and dedupe state are lost on redeploy. |
+| Instances | **1** (SQLite queue assumes a single instance) |
+| `DATABASE_PATH` | `/tmp/app.db` (ephemeral on Free) |
 
-## 3. Environment variables
-Set every variable from [setup.md §3](setup.md) in Railway → service →
-**Variables**. Never commit them. `PUBLIC_BASE_URL` = the Railway public domain
-(Settings → Networking → Generate Domain), with no trailing slash.
+Create it with Render Dashboard → **New → Blueprint** → select the repo
+(reads `render.yaml`), or **New → Web Service** with the values above.
 
-## 4. HubSpot webhook subscriptions
+## 4. Environment variables
+Set every variable from [setup.md §3](setup.md) in Render → service →
+**Environment**. Secrets are declared `sync: false` in `render.yaml`, so Render
+asks for them on first deploy and never reads them from the repo.
+`PUBLIC_BASE_URL` = the service URL, e.g. `https://forager-hubspot-enrichment.onrender.com`
+(no trailing slash). 🔎 Render also exposes `RENDER_EXTERNAL_URL`; the app uses
+it when `PUBLIC_BASE_URL` is unset.
+
+## 5. Keep-alive
+Create a free job at https://cron-job.org (or UptimeRobot) that requests
+`https://<service>.onrender.com/health` every **10 minutes**. `/health` is cheap
+and makes no external API calls.
+
+## 6. HubSpot webhook subscriptions
 1. Edit `hubspot-project/src/app/webhooks/webhooks-hsmeta.json`:
-   - `settings.targetUrl` → `https://<railway-domain>/webhooks/hubspot`
+   - `settings.targetUrl` → `https://<service>.onrender.com/webhooks/hubspot`
    - set both `object.creation` subscriptions (company, contact) to `"active": true`
 2. `cd hubspot-project && hs project upload`, then commit the change.
-3. Create a test record in HubSpot; Railway logs should show `webhook.accepted`.
+3. Create a test record in HubSpot; Render logs should show `webhook.accepted`.
    Delivery history: Development → Projects → forager-enrichment → app → Monitoring.
 
-## 5. Verification checklist
+## 7. Verification checklist
 
 | Check | How | Expected |
 |-------|-----|----------|
-| Health | `curl https://<domain>/health` | `{"status":"ok", ... true}` |
+| Health | `curl https://<service>.onrender.com/health` | `{"status":"ok", ... true}` |
 | Signature | HubSpot test event | 200; log shows `signature_version` |
 | Bad signature | `curl -X POST .../webhooks/hubspot -d '[]'` | 401 |
 | Company flow | create a company in HubSpot | enriched within ~1 min; contacts discovered if none |
 | Contact flow | create a contact | enriched |
-| Duplicate | replay the same event | one job, no extra credits |
-| Logs | Railway logs | no tokens/emails/phones |
+| Duplicate | replay the same event | no duplicate contacts, no extra credits |
+| Keep-alive | cron-job.org history | 200 every 10 min |
+| Logs | Render → Logs | no tokens/emails/phones |
 
-## 6. Rollback
-Railway → Deployments → previous deployment → **Redeploy**.
+## 8. Rollback
+Render → service → **Events** → pick a previous deploy → **Rollback**.

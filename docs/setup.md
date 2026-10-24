@@ -2,7 +2,7 @@
 
 ## 1. Prerequisites
 
-- Python 3.12+ (developed on 3.14; Railway pinned in [deployment.md](deployment.md))
+- Python 3.12+ (developed on 3.14; Render uses `.python-version`)
 - Git
 - A Forager account and a HubSpot account (free tiers are enough)
 
@@ -16,7 +16,7 @@ copy .env.example .env   # then fill in values
 ```
 
 > Note: on Windows PowerShell, `pip freeze > requirements.txt` writes UTF-16,
-> which pip on Linux (Railway) cannot read. Use
+> which pip on Linux (Render) cannot read. Use
 > `pip freeze | Out-File -Encoding utf8 requirements.txt`, or edit by hand.
 
 ## 3. Environment variables
@@ -27,9 +27,9 @@ copy .env.example .env   # then fill in values
 | `FORAGER_ACCOUNT_ID` | yes | Integer account id used in Forager URL paths |
 | `HUBSPOT_ACCESS_TOKEN` | yes | Static access token of the HubSpot project app |
 | `HUBSPOT_CLIENT_SECRET` | yes (webhooks) | Project app client secret, used to verify webhook signatures |
-| `PUBLIC_BASE_URL` | yes (webhooks) | Public https base URL, e.g. `https://<app>.up.railway.app`. Needed to rebuild the signed URI |
+| `PUBLIC_BASE_URL` | yes (webhooks) | Public https base URL, e.g. `https://<service>.onrender.com` (falls back to Render's `RENDER_EXTERNAL_URL`). Needed to rebuild the signed URI |
 | `ADMIN_API_KEY` | yes | Random string protecting `/admin/*` |
-| `DATABASE_PATH` | no | SQLite file (default `./data/app.db`) |
+| `DATABASE_PATH` | no | SQLite file (default `data/app.db`; `/tmp/app.db` on Render Free) |
 | `FORAGER_CREDIT_BUDGET` | no | Hard cap on credits this deployment may spend (default 45 — the account has 50) |
 | `DISCOVERY_TITLES` | no | Default include titles, comma-separated |
 | `DISCOVERY_EXCLUDE_TITLES` | no | Default exclude titles |
@@ -77,4 +77,4 @@ $env:RUN_LIVE_TESTS=1; pytest -m live   # spends Forager credits
 | HubSpot `403 MISSING_SCOPES` | add the scope to `app-hsmeta.json`, `hs project upload`, reinstall, re-copy the token |
 | HubSpot `400 PROPERTY_DOESNT_EXIST` | run `scripts.setup_hubspot_properties` |
 | Webhook `401 invalid signature` | wrong client secret, or `PUBLIC_BASE_URL` doesn't match the subscribed target URL exactly (scheme, host, path, trailing slash) |
-| pip on Railway: `invalid requirement '\xff\xfe…'` | requirements.txt is UTF-16; re-save as UTF-8 |
+| pip on Render: `invalid requirement '\xff\xfe…'` | requirements.txt is UTF-16; re-save as UTF-8 |

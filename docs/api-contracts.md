@@ -90,7 +90,7 @@ Required scopes 🔎: `crm.objects.companies.read/write`, `crm.objects.contacts.
 Source: https://developers.hubspot.com/docs/apps/developer-platform/add-features/configure-webhooks,
 https://developers.hubspot.com/docs/api-reference/legacy/webhooks/guide
 
-- Subscriptions are declared in `hubspot-project/src/app/webhooks/webhooks-hsmeta.json` (`crmObjects`: `object.creation` for `company` and `contact`) and deployed with `hs project upload`. `targetUrl` must be publicly reachable; subscriptions stay `active: false` until the Railway URL exists.
+- Subscriptions are declared in `hubspot-project/src/app/webhooks/webhooks-hsmeta.json` (`crmObjects`: `object.creation` for `company` and `contact`) and deployed with `hs project upload`. `targetUrl` must be publicly reachable; subscriptions stay `active: false` until the Render URL exists.
 - Target URL receives `POST` with a JSON **array** of events; ≤ 100 events per request; ≤ 10 concurrent requests per app.
 - Retries: on connection failure, response > **5 s**, or any 4xx/5xx — up to **10 retries over 24 h**.
 - Legacy event fields: `eventId, subscriptionId, portalId, appId, occurredAt, subscriptionType` (e.g. `contact.creation`, `company.creation`), `attemptNumber` (starts at 0), `objectId, changeSource, changeFlag`. ⚠️ The guide's sample uses `eventType` in one place; the parser accepts both.
@@ -104,4 +104,4 @@ Source: https://developers.hubspot.com/docs/apps/legacy-apps/authentication/vali
 - **v3**: headers `X-HubSpot-Signature-v3`, `X-HubSpot-Request-Timestamp` (ms).
   `base64(HMAC_SHA256(secret, method + uri + body + timestamp))`, where `uri` is the full public URL with the documented percent-decodings applied. Reject if the timestamp is older than 5 minutes. Compare in constant time.
 - **v1** (CRM webhook events): header `X-HubSpot-Signature` = `hex(SHA256(client_secret + body))`, `X-HubSpot-Signature-Version: v1`.
-- ⚠️ Which version project-app webhooks send is not stated (v3 expected). We verify v3 when its headers are present, otherwise v1, and log which version was used. Behind Railway's proxy the URI must be rebuilt from `PUBLIC_BASE_URL` (not the internal host/scheme).
+- ⚠️ Which version project-app webhooks send is not stated (v3 expected). We verify v3 when its headers are present, otherwise v1, and log which version was used. Behind Render's proxy the URI must be rebuilt from `PUBLIC_BASE_URL` (not the internal host/scheme).

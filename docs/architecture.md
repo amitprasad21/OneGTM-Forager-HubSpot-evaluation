@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-A single Python service (FastAPI + httpx) deployed on Railway. HubSpot sends
+A single Python service (FastAPI + httpx) deployed on Render (Free plan + keep-alive). HubSpot sends
 webhooks to it; it acknowledges immediately, queues a job, and a background
 worker performs Forager lookups and writes results back to HubSpot.
 
@@ -81,18 +81,30 @@ Enrich contact (R2) unless its status is already `enriched`/`in_progress`.
 | HubSpot 5 s timeout / retries | Ack after verify + enqueue; work happens in the worker. |
 | Duplicate deliveries (retries, batches) | `processed_events(event_id PK)`; job `dedupe_key` (`company:{id}`) unique while pending/running. |
 | Webhook loops | We only subscribe to *creation* events; our own property updates do not trigger them. Contacts we create are written with `forager_enrichment_status=enriched`, so the resulting `contact.creation` job is a no-op. |
-| Credit exhaustion | Credit ledger in SQLite; `FORAGER_CREDIT_BUDGET` hard cap; phone/personal-email lookups individually toggleable. |
+| Credit exhaustion | Credit ledger in SQLite capped by `min(FORAGER_CREDIT_BUDGET, live balance)`; per-run phone limit; phone/personal-email lookups toggleable. |
 | Transient API errors | Bounded retries (max 3) with backoff on 429/5xx/timeouts; job retried up to 3 times then marked `failed` with error. |
 | Partial failure | Each field group is written independently; status `partial` + `forager_enrichment_notes` lists what was missing. |
 | Forged webhooks | HMAC verification with HubSpot client secret, 5-minute timestamp window, constant-time compare. |
 | PII in logs | Redaction filter; logs carry HubSpot object ids, never emails/phones/tokens. |
-| Restart during job | Jobs persisted in SQLite; `running` jobs older than a lease timeout are re-queued at startup. |
+| Restart during job | Persistent disk: `running` jobs past their lease are re-queued at startup. Render Free: job lost → status stays empty → `POST /admin/reconcile` re-queues it. |
 
-### Why SQLite and not Redis/Celery
-One instance, low event volume, and a need to survive restarts. SQLite on a
-Railway volume gives durable jobs and idempotency with zero extra services.
-If the volume is absent the service still runs (DB in ephemeral storage) —
-idempotency then degrades to "per deploy", which is documented in deployment.md.
+### Durability on Render Free (ephemeral disk)
+SQLite holds the job queue, processed event ids and the credit ledger. On Render
+Free the file lives in `/tmp` and is lost on redeploy/restart, so it is treated
+as a **best-effort** queue, and correctness does not depend on it:
+
+- **Idempotency / loop prevention:** HubSpot's `forager_enrichment_status` is the
+  durable guard. Companies and contacts that already have a status (other than
+  `failed`) are skipped unless forced, so a replayed or re-queued event spends no credits.
+- **Credit budget:** at startup the ledger budget becomes
+  `min(FORAGER_CREDIT_BUDGET, live Forager credits_balance)` (free call), so a
+  restart cannot reset the spending guard.
+- **Lost jobs:** `POST /admin/reconcile` searches HubSpot for recently created
+  companies/contacts with no status and re-queues them.
+
+Redis/Celery were rejected: one instance, low volume, and Render Free Key Value
+is in-memory only, so it would not add durability. With a paid plan + persistent
+disk the same SQLite code becomes durable.
 
 ## 5. Non-goals
 

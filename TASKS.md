@@ -53,7 +53,7 @@ Depends on: Phase 1
 - ⏳ OpenAI company + 5 contacts enriched live; record limitations
 
 ## Phase 8 — Deploy & deliver ⏳
-- ⏳ Railway deploy, webhooks subscribed, acceptance A1–A7, video, submission notes
+- ⏳ Render deploy (Free + keep-alive, `render.yaml`), webhooks subscribed, acceptance A1–A7, video, submission notes
 
 ## Next action
 Phase 6: webhook signature verification, payload parsing, SQLite job queue + idempotency + credit ledger, worker, admin endpoints (TDD, offline).
