@@ -1,6 +1,6 @@
 """Pure Forager -> HubSpot property mapping. Rules: docs/data-mapping.md."""
 
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 MAX_KEYWORDS = 20
 
@@ -77,6 +77,85 @@ def map_company(org: dict) -> dict[str, str]:
         "forager_keywords": ", ".join(keywords),
         "forager_logo_url": org.get("logo"),
     }
+    return _clean(properties)
+
+
+def linkedin_slug(url: str | None) -> str | None:
+    """Extract the person slug from a linkedin.com/in/<slug>/ URL."""
+    if not url or "linkedin.com/in/" not in url.lower():
+        return None
+    path = urlparse(url if "://" in url else f"https://{url}").path
+    parts = [p for p in path.split("/") if p]
+    if len(parts) >= 2 and parts[0].lower() == "in":
+        return unquote(parts[1]) or None
+    return None
+
+
+def current_role(person: dict, prefer_domain: str | None = None) -> dict | None:
+    """Pick the person's current role: one at prefer_domain if any, else the most recent."""
+    roles = [r for r in person.get("roles") or [] if isinstance(r, dict) and r.get("is_current")]
+    if not roles:
+        return None
+    if prefer_domain:
+        at_domain = [
+            r for r in roles
+            if normalize_domain((r.get("organization") or {}).get("domain")) == prefer_domain
+        ]
+        roles = at_domain or roles
+    return max(roles, key=lambda r: r.get("start_date") or "")
+
+
+def person_from_role_result(result: dict) -> dict:
+    """Turn a person_role_search result into a person-detail-shaped dict.
+
+    The search already returns name, LinkedIn, location and the matched role,
+    so discovery can skip the 1-credit detail lookup.
+    """
+    person = dict(result.get("person") or {})
+    person["roles"] = [
+        {
+            "role_title": result.get("role_title"),
+            "is_current": bool(result.get("is_current")),
+            "start_date": result.get("start_date"),
+            "organization": result.get("organization") or {},
+        }
+    ]
+    return person
+
+
+def map_contact(
+    person: dict, *, prefer_domain: str | None = None, include_extra_fields: bool = False
+) -> dict[str, str]:
+    """Map a Forager person to HubSpot contact properties (non-empty values only).
+
+    Email and phone come from separate lookups and are added by the caller.
+    """
+    linkedin = person.get("linkedin_info") or {}
+    role = current_role(person, prefer_domain) or {}
+    organization = role.get("organization") or {}
+    org_linkedin = organization.get("linkedin_info") or {}
+    city, state, country = parse_location(person.get("location"))
+
+    properties = {
+        "firstname": person.get("first_name"),
+        "lastname": person.get("last_name"),
+        "hs_linkedin_url": linkedin.get("public_profile_url"),
+        "jobtitle": role.get("role_title"),
+        "company": organization.get("name"),
+        "forager_company_domain": normalize_domain(organization.get("domain")),
+        "forager_company_linkedin_url": org_linkedin.get("public_profile_url"),
+        "city": city,
+        "state": state,
+        "country": country,
+        "forager_person_id": person.get("id"),
+    }
+    if include_extra_fields:
+        skills = [s.get("name") for s in person.get("skills") or [] if isinstance(s, dict) and s.get("name")]
+        properties.update(
+            forager_headline=person.get("headline"),
+            forager_about=person.get("description"),
+            forager_skills=", ".join(skills),
+        )
     return _clean(properties)
 
 
