@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     admin_api_key: SecretStr = SecretStr("")
 
     public_base_url: str = ""
+    render_external_url: str = ""  # set automatically by Render
     database_path: str = "data/app.db"
     log_level: str = "INFO"
 
@@ -24,6 +25,8 @@ class Settings(BaseSettings):
     enable_phone_lookup: bool = True
     enable_personal_email_lookup: bool = True
     enrich_extra_fields: bool = False
+    max_phone_lookups_per_job: int = 2
+    worker_enabled: bool = True
 
     discovery_titles: Annotated[list[str], NoDecode] = [
         "CEO", "CTO", "COO", "CFO", "Chief", "VP", "Vice President", "Head", "Director",
@@ -43,6 +46,10 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [part.strip() for part in value.split(",") if part.strip()]
         return value
+
+    @property
+    def webhook_base_url(self) -> str:
+        return (self.public_base_url or self.render_external_url).rstrip("/")
 
     @property
     def forager_configured(self) -> bool:

@@ -62,6 +62,19 @@ class EnrichmentAutomation:
         log_event(log, "automation.company_done", company_id=company_id, mode=summary["mode"], contacts=len(results))
         return summary
 
+    @property
+    def default_title_filter(self) -> TitleFilter:
+        return self._title_filter
+
+    async def preview_discovery(self, domain: str, title_filter: TitleFilter, limit: int) -> list[dict]:
+        """Title-filtered candidates without contact lookups or HubSpot writes (1 credit per page)."""
+        discovery = ContactDiscoveryService(self._hubspot, self._forager, self._contact_service(), clock_ms=self._clock)
+        return await discovery.find_candidates(domain, title_filter, limit)
+
+    async def discover_for_company(self, company_id: str, domain: str, title_filter: TitleFilter, limit: int) -> list:
+        discovery = ContactDiscoveryService(self._hubspot, self._forager, self._contact_service(), clock_ms=self._clock)
+        return await discovery.discover_and_create(company_id, domain, title_filter, limit)
+
     async def contact_created(self, contact_id: str, *, force: bool = False) -> dict:
         result = await self._contact_service().enrich(contact_id, force=force)
         return {"contact_id": contact_id, "status": result.status, "missing": result.missing}
