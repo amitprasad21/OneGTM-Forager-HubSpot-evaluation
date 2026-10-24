@@ -1,0 +1,30 @@
+{
+  "uid": "forager_enrichment_app",
+  "type": "app",
+  "config": {
+    "description": "Enriches HubSpot companies and contacts with Forager data via webhooks.",
+    "name": "Forager Enrichment",
+    "distribution": "private",
+    "auth": {
+      "type": "static",
+      "requiredScopes": [
+        "oauth",
+        "crm.objects.companies.read",
+        "crm.objects.companies.write",
+        "crm.objects.contacts.read",
+        "crm.objects.contacts.write",
+        "crm.schemas.companies.read",
+        "crm.schemas.companies.write",
+        "crm.schemas.contacts.read",
+        "crm.schemas.contacts.write"
+      ],
+      "optionalScopes": [],
+      "conditionallyRequiredScopes": []
+    },
+    "permittedUrls": {
+      "fetch": [],
+      "iframe": [],
+      "img": []
+    }
+  }
+}

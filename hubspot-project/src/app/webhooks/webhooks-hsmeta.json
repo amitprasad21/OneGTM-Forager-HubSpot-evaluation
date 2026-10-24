@@ -1,0 +1,24 @@
+{
+  "uid": "forager_enrichment_webhooks",
+  "type": "webhooks",
+  "config": {
+    "settings": {
+      "targetUrl": "https://example.com/webhooks/hubspot",
+      "maxConcurrentRequests": 5
+    },
+    "subscriptions": {
+      "crmObjects": [
+        {
+          "subscriptionType": "object.creation",
+          "objectType": "company",
+          "active": false
+        },
+        {
+          "subscriptionType": "object.creation",
+          "objectType": "contact",
+          "active": false
+        }
+      ]
+    }
+  }
+}

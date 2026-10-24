@@ -14,7 +14,11 @@ Legend: ✅ done · 🔄 in progress · ⏳ todo · ⛔ blocked (needs user acti
 
 ## Phase 2 — External setup & live contract checks ⏳
 Depends on: Phase 1
-- ⛔ HubSpot private app: confirm standalone (not project-built), scopes, `HUBSPOT_CLIENT_SECRET` in `.env`
+- ✅ Finding: portal has **no legacy apps**; existing token is a service key (REST only; service keys cannot receive webhooks)
+- ✅ HubSpot CLI 8.17.0 installed (Node 24)
+- ⛔ User: `hs account auth` (personal access key) so the CLI can upload a project
+- ⏳ Add `hubspot-project/` (static-auth, private app + webhook subscriptions for company/contact `object.creation`), upload, install
+- ⏳ User: copy app static token + client secret into `.env`; update api-contracts/setup/deployment docs for the project-based app
 - ⏳ `scripts/check_config.py`: Forager `/api/users/current/` (free) → account id + credit balance; HubSpot token check (read-only)
 - ⏳ Confirm HubSpot default properties exist (`hs_linkedin_url`, `linkedin_company_page`, `founded_year`, …)
 - ⏳ Download Forager OpenAPI bundle; confirm reverse-email request field
