@@ -3,7 +3,7 @@
   "type": "webhooks",
   "config": {
     "settings": {
-      "targetUrl": "https://example.com/webhooks/hubspot",
+      "targetUrl": "https://forager-hubspot-enrichment-oxqc.onrender.com/webhooks/hubspot",
       "maxConcurrentRequests": 5
     },
     "subscriptions": {
@@ -11,12 +11,12 @@
         {
           "subscriptionType": "object.creation",
           "objectType": "company",
-          "active": false
+          "active": true
         },
         {
           "subscriptionType": "object.creation",
           "objectType": "contact",
-          "active": false
+          "active": true
         }
       ]
     }
