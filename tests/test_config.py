@@ -62,3 +62,8 @@ def test_title_lists_are_parsed_from_comma_separated_env(monkeypatch):
 
     assert settings.discovery_titles == ["VP", "Head of", "Director"]
     assert settings.discovery_exclude_titles == ["Intern"]
+
+
+def test_webhook_base_url_prefers_public_base_url_then_render():
+    assert make_settings(public_base_url="https://a.example/").webhook_base_url == "https://a.example"
+    assert make_settings(render_external_url="https://svc.onrender.com").webhook_base_url == "https://svc.onrender.com"
