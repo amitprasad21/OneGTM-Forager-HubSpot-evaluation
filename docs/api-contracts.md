@@ -94,6 +94,7 @@ https://developers.hubspot.com/docs/api-reference/legacy/webhooks/guide
 - Target URL receives `POST` with a JSON **array** of events; ≤ 100 events per request; ≤ 10 concurrent requests per app.
 - Retries: on connection failure, response > **5 s**, or any 4xx/5xx — up to **10 retries over 24 h**.
 - Legacy event fields: `eventId, subscriptionId, portalId, appId, occurredAt, subscriptionType` (e.g. `contact.creation`, `company.creation`), `attemptNumber` (starts at 0), `objectId, changeSource, changeFlag`. ⚠️ The guide's sample uses `eventType` in one place; the parser accepts both.
+- **Observed live (2026-10-24):** a contact created in the HubSpot UI was delivered and processed in ~1.3 s (created 06:23:34.857Z → enriched 06:23:36.182Z, signature v3 accepted). A contact created through the API **with the app's own token produced no webhook** within 2 minutes. So records our service creates do not echo back; the status-property guard still covers other apps and replays.
 - Generic format (**expected for our `crmObjects` subscriptions**): `subscriptionType: "object.creation"` with `objectTypeId` (`0-1` contacts, `0-2` companies). Parser supports both.
 
 ### 2.3 Webhook signature ✅

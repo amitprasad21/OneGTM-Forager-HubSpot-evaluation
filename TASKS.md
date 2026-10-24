@@ -58,7 +58,10 @@ Depends on: Phase 1
 - ⏳ OpenAI company + 5 contacts enriched live; record limitations
 
 ## Phase 8 — Deploy & deliver ⏳
-- ⏳ Render deploy (Free + keep-alive, `render.yaml`), webhooks subscribed, acceptance A1–A7, video, submission notes
+- ✅ Render Blueprint deployed: https://forager-hubspot-enrichment-oxqc.onrender.com (health ok, unsigned → 401, signed → processed)
+- ✅ HubSpot webhooks active (build #2) → Render; UI-created contact processed live in ~1.3 s with zero credits
+- ⏳ User: paid Forager key in Render + `.env`; cron-job.org keep-alive
+- ⏳ Live OpenAI run while recording; acceptance A1–A7; submission notes
 
 ## Next action
 User: put the paid Forager key in `.env` and Render, create the Render service (Blueprint), send the URL. Then: activate webhooks, keep-alive, live OpenAI run while recording.
