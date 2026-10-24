@@ -18,11 +18,13 @@ services:
         sync: false
       - key: ADMIN_API_KEY
         sync: false
-      - key: PUBLIC_BASE_URL
-        sync: false
       - key: DATABASE_PATH
         value: /tmp/app.db
       - key: FORAGER_CREDIT_BUDGET
-        value: "45"
+        value: "50"
+      - key: ENABLE_PERSONAL_EMAIL_LOOKUP
+        value: "false"
+      - key: MAX_PHONE_LOOKUPS_PER_JOB
+        value: "2"
       - key: LOG_LEVEL
         value: INFO

@@ -27,7 +27,7 @@ copy .env.example .env   # then fill in values
 | `FORAGER_ACCOUNT_ID` | yes | Integer account id used in Forager URL paths |
 | `HUBSPOT_ACCESS_TOKEN` | yes | Static access token of the HubSpot project app |
 | `HUBSPOT_CLIENT_SECRET` | yes (webhooks) | Project app client secret, used to verify webhook signatures |
-| `PUBLIC_BASE_URL` | yes (webhooks) | Public https base URL, e.g. `https://<service>.onrender.com` (falls back to Render's `RENDER_EXTERNAL_URL`). Needed to rebuild the signed URI |
+| `PUBLIC_BASE_URL` | local/custom domain only | Public https base URL, e.g. `https://<service>.onrender.com` (falls back to Render's `RENDER_EXTERNAL_URL`). Needed to rebuild the signed URI |
 | `ADMIN_API_KEY` | yes | Random string protecting `/admin/*` (sent as `X-Admin-Key`). Generate: `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
 | `DATABASE_PATH` | no | SQLite file (default `data/app.db`; `/tmp/app.db` on Render Free) |
 | `FORAGER_CREDIT_BUDGET` | no | Hard cap on credits this deployment may spend (default 45 — the account has 50) |

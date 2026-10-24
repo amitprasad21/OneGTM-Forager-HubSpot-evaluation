@@ -28,6 +28,7 @@ Upgrade path: Starter plan + persistent disk mounted at `/var/data`
 | Health check path | `/health` |
 | Instances | **1** (SQLite queue assumes a single instance) |
 | `DATABASE_PATH` | `/tmp/app.db` (ephemeral on Free) |
+| Live-run credit settings | `FORAGER_CREDIT_BUDGET=50`, `ENABLE_PERSONAL_EMAIL_LOOKUP=false`, `MAX_PHONE_LOOKUPS_PER_JOB=2` (Phase 7 plan) |
 
 Create it with Render Dashboard → **New → Blueprint** → select the repo
 (reads `render.yaml`), or **New → Web Service** with the values above.
@@ -36,9 +37,10 @@ Create it with Render Dashboard → **New → Blueprint** → select the repo
 Set every variable from [setup.md §3](setup.md) in Render → service →
 **Environment**. Secrets are declared `sync: false` in `render.yaml`, so Render
 asks for them on first deploy and never reads them from the repo.
-`PUBLIC_BASE_URL` = the service URL, e.g. `https://forager-hubspot-enrichment.onrender.com`
-(no trailing slash). 🔎 Render also exposes `RENDER_EXTERNAL_URL`; the app uses
-it when `PUBLIC_BASE_URL` is unset.
+The webhook URL used for signature checks comes from Render's default
+`RENDER_EXTERNAL_URL` ("the service's full `onrender.com` URL", per
+https://render.com/docs/environment-variables), so `PUBLIC_BASE_URL` is only
+needed for a custom domain.
 
 ## 5. Keep-alive
 Create a free job at https://cron-job.org (or UptimeRobot) that requests
