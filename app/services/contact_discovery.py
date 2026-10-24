@@ -27,6 +27,8 @@ class ContactDiscoveryService:
         if query := title_filter.forager_query():
             filters["role_title"] = query
 
+        kept_titles: list[str] = []
+        filtered_titles: list[str] = []  # job titles only, never names: shows the filter at work
         fetched = 0
         for page in range(1, self.max_pages + 1):
             response = await self._forager.search_person_roles(page=page, **filters)
@@ -35,22 +37,33 @@ class ContactDiscoveryService:
             for result in results:
                 person_id = (result.get("person") or {}).get("id")
                 org_domain = normalize_domain((result.get("organization") or {}).get("domain"))
-                if (
-                    person_id is None
-                    or person_id in seen
-                    or not result.get("is_current")
-                    or org_domain != domain
-                    or not title_filter.matches(result.get("role_title"))
-                ):
+                title = result.get("role_title")
+                if person_id is None or person_id in seen or not result.get("is_current") or org_domain != domain:
+                    continue
+                if not title_filter.matches(title):
+                    filtered_titles.append(title or "")
                     continue
                 seen.add(person_id)
+                kept_titles.append(title)
                 candidates.append(person_from_role_result(result))
                 if limit is not None and len(candidates) >= limit:
-                    return candidates
-            if not results or fetched >= (response.get("total_search_results") or 0):
+                    break
+            if (
+                (limit is not None and len(candidates) >= limit)
+                or not results
+                or fetched >= (response.get("total_search_results") or 0)
+            ):
                 break
 
-        log_event(log, "discovery.candidates", domain=domain, found=len(candidates), filter=title_filter.describe())
+        log_event(
+            log,
+            "discovery.candidates",
+            domain=domain,
+            filter=title_filter.describe(),
+            found=len(candidates),
+            kept_titles=kept_titles,
+            filtered_titles=filtered_titles,
+        )
         return candidates
 
     async def discover_and_create(
