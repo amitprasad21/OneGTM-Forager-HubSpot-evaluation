@@ -37,7 +37,10 @@ services for manual runs and for the demo (e.g. title-filter demonstration).
 | `app/services/*.py` | Business flows for R1–R5. |
 | `app/webhooks.py` | Signature verification (v3, v1 fallback), payload parsing (legacy and generic formats), event routing. |
 | `app/jobs.py` | SQLite-backed job queue + idempotency store + credit ledger; single async worker started in FastAPI lifespan. |
-| `app/main.py` | FastAPI app: `/health`, `/webhooks/hubspot`, `/admin/*`. |
+| `app/container.py` | Builds settings, store, ledger, clients and automation. |
+| `app/services/automation.py` | R4/R5 orchestration: company created → enrich + contacts/discovery; contact created → enrich; mark failed. |
+| `app/worker.py` | Claims jobs, runs automation, retries transient errors (30 s, 120 s; 3 attempts), marks records `failed`. |
+| `app/main.py` | FastAPI app: `/health`, `/webhooks/hubspot`, `/admin/enrich/{company,contact}/{id}`, `/admin/discover`, `/admin/reconcile`, `/admin/jobs`, `/admin/credits`. |
 | `scripts/` | CLI: create HubSpot custom properties, run demo enrichment, discover with title filter. |
 
 ## 3. Flows

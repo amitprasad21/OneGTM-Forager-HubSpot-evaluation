@@ -46,8 +46,13 @@ Depends on: Phase 1
 - ✅ `ContactDiscoveryService`: title-filtered candidates, current employer only, dedupe vs HubSpot (person id, LinkedIn), creates contacts already enriched + associated; 409 duplicate email skipped
 - ✅ 153 offline tests passing
 
-## Phase 6 — Webhooks & reliability ⏳
-- ⏳ signature verification · payload parsing · SQLite job queue + idempotency · worker · admin endpoints
+## Phase 6 — Webhooks & reliability ✅
+- ✅ `app/webhooks.py`: v3 HMAC (5-min window, constant-time, URI decoding) with v1 fallback; legacy + generic `object.creation` parsing
+- ✅ `app/jobs.py`: SQLite queue (one active job per object), event dedupe, persistent credit ledger, stale-job requeue
+- ✅ Company skip guard (status set → no credits); live Forager balance caps the budget at startup
+- ✅ `EnrichmentAutomation` (R4/R5) + `Worker` (retry 429/5xx/network, fail fast on auth/budget/4xx, mark `failed`)
+- ✅ FastAPI: `/health`, `/webhooks/hubspot`, admin enrich/discover/reconcile/jobs/credits (`X-Admin-Key`)
+- ✅ 227 offline tests passing
 
 ## Phase 7 — Acceptance & OpenAI demo ⏳
 - ⏳ OpenAI company + 5 contacts enriched live; record limitations
@@ -56,4 +61,4 @@ Depends on: Phase 1
 - ⏳ Render deploy (Free + keep-alive, `render.yaml`), webhooks subscribed, acceptance A1–A7, video, submission notes
 
 ## Next action
-Phase 6: webhook signature verification, payload parsing, SQLite job queue + idempotency + credit ledger, worker, admin endpoints (TDD, offline).
+User: add `ADMIN_API_KEY` to `.env` → local smoke test (free calls only) → Phase 7 live OpenAI run (spends credits, needs approval).
