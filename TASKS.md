@@ -19,8 +19,8 @@ Depends on: Phase 1
 - ✅ CLI authenticated (account `open-ai`, portal 247782088)
 - ✅ `hubspot-project/` uploaded (build #1, app id 58454528) and installed; 9 scopes granted
 - ✅ `HUBSPOT_CLIENT_SECRET` set; `scripts/check_config.py` passes (Forager 200, HubSpot 200, all mapped default properties exist incl. `hs_linkedin_url`)
-- ⛔ User: confirm `HUBSPOT_ACCESS_TOKEN` is now the app's static token (not the service key)
-- ⛔ **Forager balance is 50 credits (initial demo credits), not 150** — decide how to cover the 5-person deliverable
+- ✅ User confirmed `HUBSPOT_ACCESS_TOKEN` is the app's static token
+- ✅ Forager balance is 50 credits (not 150). Decision: phones for 2 contacts, emails within remaining budget
 - ✅ Docs updated for the project-based app and the 50-credit balance
 - ✅ Forager OpenAPI bundle checked: reverse-email body `{email}`, phone/personal-email are arrays, work-email `emails[]` shape ambiguous (handled)
 - ⏳ One live org search for `openai.com` (1 credit) + one role search (1 credit) → redacted fixtures
@@ -33,8 +33,11 @@ Depends on: Phase 1
 - ✅ HubSpotClient (objects, search, v4 associations, properties; 409-idempotent property creation)
 - ✅ 60 offline tests passing
 
-## Phase 4 — Company enrichment ⏳
-- ⏳ company mapping · CompanyEnrichmentService · property setup script
+## Phase 4 — Company enrichment ✅
+- ✅ `app/mapping.py`: company mapping, location parsing, domain normalisation
+- ✅ `CompanyEnrichmentService`: domain/website → org search, name → autocomplete fallback; fill-only name/domain; enriched/partial/not_found/missing statuses
+- ✅ `app/hubspot_properties.py` + `scripts/setup_hubspot_properties.py`; run live: 10 company + 7 contact properties created, re-run idempotent
+- ✅ 95 offline tests passing
 
 ## Phase 5 — Contact enrichment & discovery ⏳
 - ⏳ contact mapping · title filter · ContactEnrichmentService · ContactDiscoveryService
@@ -49,5 +52,4 @@ Depends on: Phase 1
 - ⏳ Railway deploy, webhooks subscribed, acceptance A1–A7, video, submission notes
 
 ## Next action
-Phase 4: company mapping + CompanyEnrichmentService + `scripts/setup_hubspot_properties.py` (TDD, offline).
-Open user decisions: Forager credit gap; confirm HubSpot token is the app token.
+Phase 5: contact mapping, title filter, ContactEnrichmentService, ContactDiscoveryService (TDD, offline). Credit-aware: phone lookups limited per run.

@@ -2,8 +2,8 @@
 
 Rules:
 - Only write a property when Forager returned a non-empty value. Never overwrite with blanks, never invent.
-- HubSpot **default** property names are marked 🔎. Before first write, Phase 2 confirms they exist with `GET /crm/v3/properties/{type}`.
-- Custom properties live in a property group **`forager_enrichment`** and use the prefix `forager_`. They are created idempotently by `scripts/setup_hubspot_properties.py`.
+- HubSpot **default** property names marked 🔎 were confirmed to exist in portal 247782088 by `scripts/check_config.py` (2026-10-24).
+- Custom properties live in a property group **`forager_enrichment`** and use the prefix `forager_`. They are created idempotently by `scripts/setup_hubspot_properties.py` (run 2026-10-24: 10 company + 7 contact properties). Discussion fields (`forager_headline`, `forager_about`, `forager_skills`) are only created with `--include-extra-fields`.
 - Enumeration-type defaults (e.g. company `industry`) are **not** written, because a value outside HubSpot's fixed options fails validation. Raw values go to custom text properties instead.
 
 ## 1. Company (Forager `organization_search` result → HubSpot company)
@@ -37,7 +37,7 @@ Rules:
 |----------------|----------------|------------------|
 | First name | `first_name` | `firstname` 🔎 |
 | Last name | `last_name` | `lastname` 🔎 |
-| Person LinkedIn URL | `linkedin_info.public_profile_url` | `hs_linkedin_url` 🔎 if it exists in the portal, else custom `forager_linkedin_url` |
+| Person LinkedIn URL | `linkedin_info.public_profile_url` | `hs_linkedin_url` ✅ (exists in this portal) |
 | Job title | current role (`roles[is_current]`, most recent `start_date`) `.role_title` | `jobtitle` 🔎 |
 | Employer name | current role `.organization.name` | `company` 🔎 |
 | Employer domain | current role `.organization.domain` | `forager_company_domain` (custom) |
