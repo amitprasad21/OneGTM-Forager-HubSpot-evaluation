@@ -61,7 +61,10 @@ Depends on: Phase 1
 - ✅ Render Blueprint deployed: https://forager-hubspot-enrichment-oxqc.onrender.com (health ok, unsigned → 401, signed → processed)
 - ✅ HubSpot webhooks active (build #2) → Render; UI-created contact processed live in ~1.3 s with zero credits
 - ⏳ User: paid Forager key in Render + `.env`; cron-job.org keep-alive
-- ⏳ Live OpenAI run while recording; acceptance A1–A7; submission notes
+- ✅ First live OpenAI run (50-credit key, 18 credits): 5 real OpenAI leaders created; 3 work emails; 0 phones (none in Forager); own-contact webhooks skipped by guard
+- ✅ Fixed from that run: wrong organization picked for a shared domain; hierarchical OSM names in city/state; discovery restricted to the matched organization
+- ⏳ Clean up the OpenAI records (company fields from the wrong org, 2 contacts' city/state), with user approval
+- ⏳ Paid Forager key; final recording; acceptance A1–A7; submission notes
 
 ## Next action
 User: put the paid Forager key in `.env` and Render, create the Render service (Blueprint), send the URL. Then: activate webhooks, keep-alive, live OpenAI run while recording.

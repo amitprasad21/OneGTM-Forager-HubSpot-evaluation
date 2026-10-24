@@ -50,6 +50,10 @@ All `POST`, JSON body, unless stated.
 
 ### 1.3 Forager ambiguities to handle defensively
 
+- **Observed live (2026-10-24): several organizations share one domain.** `organization_search` with `domains=["openai.com"]` returned a 1-employee company before OpenAI. The service now ranks domain matches by name match with the HubSpot record, then headcount, then domain rank. Discovery keeps only people whose `organization.id` equals the matched organization.
+- **Observed live: `osm_locations[].name` is hierarchical** (`"San Francisco, California, United States"` for the city). Mapping keeps the first comma segment.
+- **Observed live: no verified phone** (default `highest_quality` tier) for 5 OpenAI leaders; phone lookups returned nothing and were not charged.
+
 - ⚠️ `location.osm_locations[].place_type` values are not enumerated. Mapping uses them when present and falls back to splitting `location.name` ("City, State, Country").
 - ⚠️ Shape of `emails[]` items in work-email poll is self-contradictory in the OpenAPI bundle. The client accepts strings, `[email, verdict]` pairs and `{email, verdict}` objects, prefers a valid verdict, and skips invalid ones.
 - Phone and personal-email responses are JSON **arrays** (OpenAPI bundle). Only `200`/`202` responses are documented; the client treats `401/403` as auth errors, `404` or an empty body as "not found", and other non-2xx responses as errors.
@@ -94,7 +98,7 @@ https://developers.hubspot.com/docs/api-reference/legacy/webhooks/guide
 - Target URL receives `POST` with a JSON **array** of events; ≤ 100 events per request; ≤ 10 concurrent requests per app.
 - Retries: on connection failure, response > **5 s**, or any 4xx/5xx — up to **10 retries over 24 h**.
 - Legacy event fields: `eventId, subscriptionId, portalId, appId, occurredAt, subscriptionType` (e.g. `contact.creation`, `company.creation`), `attemptNumber` (starts at 0), `objectId, changeSource, changeFlag`. ⚠️ The guide's sample uses `eventType` in one place; the parser accepts both.
-- **Observed live (2026-10-24):** a contact created in the HubSpot UI was delivered and processed in ~1.3 s (created 06:23:34.857Z → enriched 06:23:36.182Z, signature v3 accepted). A contact created through the API **with the app's own token produced no webhook** within 2 minutes. So records our service creates do not echo back; the status-property guard still covers other apps and replays.
+- **Observed live (2026-10-24):** a contact created in the HubSpot UI was delivered and processed in ~1.3 s (created 06:23:34.857Z → enriched 06:23:36.182Z, signature v3 accepted). A contact created through the API with the app's own token produced no webhook within 2 minutes in one test, **but in the first OpenAI run the 5 contacts created by discovery did each trigger `contact.creation`**. Delivery for app-created records is therefore not reliable either way; the status-property guard skipped all 5 with zero credits.
 - Generic format (**expected for our `crmObjects` subscriptions**): `subscriptionType: "object.creation"` with `objectTypeId` (`0-1` contacts, `0-2` companies). Parser supports both.
 
 ### 2.3 Webhook signature ✅
