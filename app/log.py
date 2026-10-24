@@ -10,8 +10,19 @@ _PATTERNS = [
     (re.compile(r"(?i)(x-api-key|authorization|bearer|token|secret)([\"']?\s*[:=]?\s*)[A-Za-z0-9._\-]{12,}"), r"\1\2[REDACTED]"),
     (re.compile(r"\bpat-[a-z0-9]+-[A-Za-z0-9\-]+"), "[REDACTED]"),
     (re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+"), "[EMAIL]"),
-    (re.compile(r"\+?\d[\d\s().-]{7,}\d"), "[PHONE]"),
 ]
+_PHONE_CANDIDATE = re.compile(r"(?<![\w.:])[+(]?\d[\d\s().-]{6,}\d")
+_ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _mask_phone(match: re.Match) -> str:
+    """Mask phone-like digit runs; keep record ids, dates and decimals readable."""
+    text = match.group(0)
+    digits = sum(c.isdigit() for c in text)
+    looks_formatted = text[0] in "+(" or any(c in text for c in " -()")
+    if 7 <= digits <= 15 and looks_formatted and not _ISO_DATE.search(text):
+        return "[PHONE]"
+    return text
 
 
 def redact(value):
@@ -19,7 +30,7 @@ def redact(value):
     if isinstance(value, str):
         for pattern, replacement in _PATTERNS:
             value = pattern.sub(replacement, value)
-        return value
+        return _PHONE_CANDIDATE.sub(_mask_phone, value)
     if isinstance(value, dict):
         return {key: redact(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
