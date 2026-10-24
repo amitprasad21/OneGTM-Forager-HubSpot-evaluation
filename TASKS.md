@@ -39,8 +39,12 @@ Depends on: Phase 1
 - ✅ `app/hubspot_properties.py` + `scripts/setup_hubspot_properties.py`; run live: 10 company + 7 contact properties created, re-run idempotent
 - ✅ 95 offline tests passing
 
-## Phase 5 — Contact enrichment & discovery ⏳
-- ⏳ contact mapping · title filter · ContactEnrichmentService · ContactDiscoveryService
+## Phase 5 — Contact enrichment & discovery ✅
+- ✅ `TitleFilter`: quoted OR query for Forager `role_title` + local word-bounded include/exclude re-check (exclude wins)
+- ✅ Contact mapping: current role (prefers target domain, then most recent), LinkedIn slug parsing, role-search result → person (saves the 1-credit detail lookup)
+- ✅ `ContactEnrichmentService`: identify by forager_person_id → LinkedIn → name + company/email domain → reverse email; work email → personal email; phone with per-run limit; credit-budget aware; fill-only names/email; skips already-processed contacts (loop guard)
+- ✅ `ContactDiscoveryService`: title-filtered candidates, current employer only, dedupe vs HubSpot (person id, LinkedIn), creates contacts already enriched + associated; 409 duplicate email skipped
+- ✅ 153 offline tests passing
 
 ## Phase 6 — Webhooks & reliability ⏳
 - ⏳ signature verification · payload parsing · SQLite job queue + idempotency · worker · admin endpoints
@@ -52,4 +56,4 @@ Depends on: Phase 1
 - ⏳ Railway deploy, webhooks subscribed, acceptance A1–A7, video, submission notes
 
 ## Next action
-Phase 5: contact mapping, title filter, ContactEnrichmentService, ContactDiscoveryService (TDD, offline). Credit-aware: phone lookups limited per run.
+Phase 6: webhook signature verification, payload parsing, SQLite job queue + idempotency + credit ledger, worker, admin endpoints (TDD, offline).
